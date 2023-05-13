@@ -3,47 +3,65 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\UserResource;
 
-class AuthController extends Controller
+class  AuthController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function register(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'phone_number' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:9',
+        ]);
+        $validated['password'] = Hash::make($validated['password']);
+
+        $user = User::create($validated);
+
+        if ($user){
+            return response()->json([
+                'data' => $user
+            ]);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+    public function login(Request $request) {
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (!Auth::attempt($validated)) {
+            return response()->json([
+                'data' => ['Check your email and password'],
+            ],403);
+        }
+
+        return response()->json([
+            'user' => new UserResource(auth()->user()),
+            'access_token' => auth()->user()->createToken('login')->accessToken,
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+    public function logout() {
+        auth()->user()->token()->revoke();
+
+        return response()->json([
+            'message' => [
+                'type' => 'success',
+                'data' => 'successfully logout'
+            ]
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+    public function user() {
+        return response()->json(new UserResource(auth()->user()));
     }
 }
