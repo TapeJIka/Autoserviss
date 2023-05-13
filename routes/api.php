@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ContactMessageController;
+use App\Http\Controllers\Api\ServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,3 +26,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::get('/logout', [AuthController::class, 'logout']);
 });
+
+Route::apiResource('/categories',CategoryController::class);
+Route::apiResource('/service',ServiceController::class);
+Route::apiResource('/contact_message',ContactMessageController::class);
+
+Route::get('/product/image/{category_image}',[CategoryController::class,'getFile'])->name('category_image.image');

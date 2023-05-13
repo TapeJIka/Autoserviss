@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('price');
+            $table->decimal('price');
             $table->foreignId('category_id')->references('id')->on('categories')->onDelete('cascade')->constrained();
             $table->timestamps();
         });
