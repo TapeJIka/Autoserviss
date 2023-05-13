@@ -13,9 +13,9 @@ class ServiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return ServiceResource::collection(Service::all());
+        return ServiceResource::collection(Service::filter($request->all())->get());
     }
 
     /**
